@@ -1,0 +1,206 @@
+
+	ORG 100
+	INP
+
+
+LOOP,	LDA BCD1
+	SZA
+	//2 BSA SHOULD BE CHANGED. NO PROPRER IF ELSE STATEMENT
+  BSA ADDITION_BCD2
+	BSA SHIFT_BCD1 /the place that will be returned after the SHIFT_BCD1 instruct
+  LDA BCD0
+	SZA
+  //2 BSA SHOULD BE CHANGED. NO PROPRER IF ELSE STATEMENT
+	BSA ADDITION_BCD1
+	BSA SHIFT_BCD0 /the place that will be returned after the SHIFT_BCD0 instruct
+	LDA INPR
+	SZA
+	BSA ADDITION_BCD0
+	BSA SHIFT_INPR /the place that will be returned after the SHIFT_INPR instruct
+	BSA CHECK1_BCD0 /after the operation checking if the BCD0 value is bigger or equal to 5
+	BSA CHECK2_BCD0 /after the operation checking if the BCD1 value is bigger than 5
+	BSA CHECK1_BCD1 /after the operation checking if the BCD1 value is bigger or equal to 5
+	BSA CHECK2_BCD1 /after the operation checking if the BCD1 value is bigger than 5
+	ISZ COUNT /counter is incremented after each loop is completed.(corresponding to one total shift operation.)When count becomes zero, skip to the next instruct
+	BUN LOOP
+	BUN LAST_SHIFT
+	HLT
+
+
+/subroutines that will shift the value that is stored in BCD subgroups if SZA is met in the loop\
+SHIFT_BCD1, HEX 0
+	LDA BCD1 /1001
+	CLE / E=0
+	SPA /IF 1 -> SKIP(0=POZ\'9bT\'9bF)
+	CME / E=1
+	CIL /1000
+	STA BCD1
+	BUN SHIFT_BCD1 I
+
+SHIFT_BCD0, HEX 0
+	LDA BCD0
+	CLE
+	SPA
+	CME
+	CIL	
+	STA BCD0
+	BUN SHIFT_BCD0 I
+
+
+SHIFT_INPR, HEX 0
+	LDA INPR
+	CLE
+	SPA
+	CME
+	CIL	
+	STA INPR
+	BUN SHIFT_INPR I
+
+
+
+/subroutines that will add 1 to the next four bit group if the value that is going to be sgifted is equal to 1\
+
+ADDITION_BCD2, HEX 0
+	LDA BCD2	
+	ADD ONE
+	STA BCD2
+	LDA BCD1
+	CLE 
+	SPA
+	CME
+	CIL
+	STA BCD1
+	BUN ADDITION_BCD2 I
+
+ADDITION_BCD1, HEX 0
+	LDA BCD1
+	ADD ONE
+	STA BCD1
+	LDA BCD0
+	CLE
+	SPA
+	CME
+	CIL
+	STA BCD0
+	BUN ADDITION_BCD1 I
+
+ADDITION_BCD0, HEX 0
+	LDA BCD0	
+	ADD ONE
+	STA BCD0
+	LDA INPR
+	CLE 
+	SPA
+	CME
+	CIL
+	STA INPR
+	BUN ADDITION_BCD0 I
+
+
+
+/ Check if BCD0 is  equal to 5. If equal, go to Add 3 operation. 
+CHECK1_BCD0, HEX 0
+	LDA FIVE
+	CMA 
+	ADD ONE
+	STA TEMP
+	LDA BCD0
+	ADD TEMP
+	SZA 
+	CLA
+	BSA ADD3_BCD0
+	BUN CHECK1_BCD0 I
+
+
+/Check if BCD0 is bigger than 5. If bigger, go to add3 operation.
+CHECK2_BCD0, HEX 0
+	LDA FIVE
+	CMA 
+	ADD ONE
+	STA TEMP
+	LDA BCD0
+	ADD TEMP
+	SPA
+	CLA	
+	BSA ADD3_BCD0
+	BUN CHECK2_BCD0 I
+
+
+
+/ Check if BCD1 is equal to 5. If equal, go to Add 3 operation.
+CHECK1_BCD1, HEX 0
+	LDA FIVE
+	CMA 
+	ADD ONE
+	STA TEMP
+	LDA BCD0
+	ADD TEMP
+	SZA / if(TEMP-5 = 0, ADD 3) else(SHIFT)
+	CLA
+	BSA ADD3_BCD1
+	BUN CHECK1_BCD1 I
+
+
+/Check if BCD1 is bigger than 5. If bigger, go to add3 operation.
+CHECK2_BCD1, HEX 0
+	LDA FIVE
+	CMA 
+	ADD ONE
+	STA TEMP
+	LDA BCD0
+	ADD TEMP
+	SPA
+	CLA
+	BSA ADD3_BCD1
+	BUN CHECK2_BCD1 I 
+
+
+
+
+ADD3_BCD0, HEX 0
+	CLA
+	STA TEMP
+	LDA BCD0
+	ADD THREE
+	STA BCD0
+	BUN ADD3_BCD0 I
+
+
+ADD3_BCD1, HEX 0
+	CLA
+	STA TEMP
+	LDA BCD1
+	ADD THREE
+	STA BCD1
+	BUN ADD3_BCD1 I
+
+
+LAST_SHIFT,
+	LDA INPR
+	CIL
+	LDA ZERO 
+	STA INPR
+	LDA BCD0
+	CIL
+	STA BCD0
+	LDA BCD1
+	CIL
+	STA BCD1
+	LDA BCD2
+	STA BCD2
+	CIL
+	STA BCD2
+	OUT
+	HLT
+
+BCD0,	HEX 0000 /first four bit place that will get the shifted value of INPR
+BCD1,	HEX 0000/second four bit place that will get the shifted value of INPR
+BCD2,	HEX 0000/third four bit place that will get the shifted value of INPR
+INPR,	HEX 00E5
+ONE,	DEC 1/the value that will be added if the shifted value is one
+FIVE,	DEC 5/it will be used to check if the binary value that is stored in BCD subgroups is bigger or equal to 5\
+THREE,	DEC 3/will be used for ADD3 operation
+TEMP,	HEX 0/will temporariliy store the result
+COUNT,	DEC -7/counter that will be incremented after each loop.
+ZERO,	DEC 0	
+	END

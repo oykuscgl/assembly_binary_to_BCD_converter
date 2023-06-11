@@ -1,167 +1,166 @@
-	ORG 100\
-	LDA INPR\
+	ORG 100
+	LDA INPR
 \
-LOOP,	LDA BCD1\
-	SZA\
-	ADDITION_BCD2\
-	BSA SHIFT_BCD1/the place that will be returned after the SHIFT_BCD1 instruct\
-	LDA BCD0\
-	SZA\
-	BSA ADDITION_BCD1\
-	BSA SHIFT_BCD0/the place that will be returned after the SHIFT_BCD0 instruct\
-	BSA CHECK_BCD1/after the operation checking if the BCD1 value is bigger or equal to 5\
-	LDA INPR\
-	SZA\
-	BSA ADDITION_BCD0\
-	BSA SHIFT_INPR/the place that will be returned after the SHIFT_INPR instruct\
-	BSA CHECK_BCD0/after the operation checking if the BCD0 value is bigger or equal to 5\
-	ISZ COUNT/counter is incremented after each loop is completed.(corresponding to one total shift operation.)When count becomes zero, skip to the next instruct\
-	BUN LOOP\
-	HLT\
-\
-\
-/subroutines that will shift the value that is stored in BCD subgroups if SZA is met in the loop\
-SHIFT_BCD1,	HEX 0\
-	LDA BCD1 /1001\
-	CLE / E=0\
-	SPA /IF 1 -> SKIP(0=POZ\'9bT\'9bF)\
-	CME / E=1\
-	CIL /1000\
-	STA BCD1\
-	BUN SHIFT_BCD1 I\
-\
-SHIFT_BCD0,	HEX 0\
-	LDA BCD0\
-	CLE\
-	SPA\
-	CME\
-	CIL	\
-	STA BCD0\
-	BUN SHIFT_BCD0 I\
-\
-SHIFT_INPR,	HEX 0\
-	LDA INPR\
-	CLE\
-	SPA\
-	CME\
-	CIL	\
-	STA INPR\
-	BUN SHIFT_INPR I\
-\
-\
-\
-/subroutines that will add 1 to the next four bit group if the value that is going to be sgifted is equal to 1\
-\
-ADDITION_BCD2,	HEX 0\
-	LDA BCD2	\
-	ADD ONE\
-	STA BCD2\
-	LDA BCD1\
-	CLE \
-	SPA\
-	CME\
-	CIL\
-	STA BCD1\
-	BUN ADDITION_BCD2 I\
-\
-\
-ADDITION_BCD1,	HEX 0\
-	LDA BCD1\
-	ADD ONE\
-	STA BCD1\
-	LDA BCD0\
-	CLE\
-	SPA\
-	CME\
-	CIL\
-	STA BCD0\
-	BUN ADDITION_BCD1 I\
-\
-\
-ADDITION_BCD0,	HEX 0\
-	LDA BCD0	\
-	ADD ONE\
-	STA BCD0\
-	LDA INPR\
-	CLE \
-	SPA\
-	CME\
-	CIL\
-	STA INPR\
-	BUN ADDITION_BCD0 I\
-\
-\
-\
-/ Check if BCD0 is  equal to 5. If equal, go to Add 3 operation.\
-CHECK1_BCD0, HEX 0\
-	LDA BCD0 /0001\
-	ADD FIVE /0110\
-	STA TEMP / if(TEMP-5>=0, ADD 3) else(SHIFT)/TEMP == 0000\
-	SZA\
-	BUN SHIFT_BCD0/////W\uc0\u304 LL GO BACK TO THE LOOP AND CONTINUE\
-	BSA ADD3_BCD0\
-\
-\
-/Check if BCD0 is bigger than 5. If bigger, go to add3 operation.\
-CHECK2_BCD0, HEX 0\
-	LDA BCD0\
-	ADD FIVE\
-	STA TEMP\
-	SPA\
-	BUN SHIFT_BC0\
-	BUN ADD3_BCD0\
-	\
-\
-\
-/ Check if BCD1 is equal to 5. If equal, go to Add 3 operation.\
-CHECK1_BCD1, HEX 0\
-	LDA BCD1\
-	ADD FIVE\
-	STA TEMP / if(TEMP-5>=0, ADD 3) else(SHIFT)\
-	SZA\
-	BUN SHIFT_BCD1\
-	BUN ADD3_BCD1\
-\
-\
-/Check if BCD1 is bigger than 5. If bigger, go to add3 operation.\
-CHECK2_BCD1,	HEX 0\
-	LDA BCD1\
-	ADD FIVE\
-	STA TEMP\
-	SPA\
-	BUN SHIFT_BCD1\
-	BUN ADD3_BCD1\
-\
-\
-\
-ADD3_BDC0,	HEX 0\
-	STA BCD0\
-	ADD THREE\
-	STA BCD0\
-	BUN ADD3 I\
-\
-\
-ADD3_BDC1,	HEX 0\
-	STA BCD1\
-	ADD THREE\
-	STA BCD1\
-	BUN ADD3_2 I\
-\
-	HLT\
-\
-\
-\
-\
-BCD0,	HEX 0 /first four bit place that will get the shifted value of INPR\
-BCD1,	HEX 0/second four bit place that will get the shifted value of INPR\
-BCD2,	HEX 0/third four bit place that will get the shifted value of INPR\
-INPR,	HEX E5\
-ONE,	DEC 1/the value that will be added if the shifted value is one\
-FIVE,	DEC -5/it will be used to check if the binary value that is stored in BCD subgroups is bigger or equal to 5\
-THREE,	DEC 3/will be used for ADD3 operation\
-TEMP,	HEX 0/will temporariliy store the result\
-COUNT,	DEC -8/counter that will be incremented after each loop.\
-	END\
-\
-\
+LOOP,	LDA BCD1
+	SZA
+	ADDITION_BCD2
+	BSA SHIFT_BCD1/the place that will be returned after the SHIFT_BCD1 instruct
+	LDA BCD0
+	SZA
+	BSA ADDITION_BCD1
+	BSA SHIFT_BCD0/the place that will be returned after the SHIFT_BCD0 instruct
+	BSA CHECK_BCD1/after the operation checking if the BCD1 value is bigger or equal to 5
+	LDA INPR
+	SZA
+	BSA ADDITION_BCD0
+	BSA SHIFT_INPR/the place that will be returned after the SHIFT_INPR instruct
+	BSA CHECK_BCD0/after the operation checking if the BCD0 value is bigger or equal to 5
+	ISZ COUNT/counter is incremented after each loop is completed.(corresponding to one total shift operation.)When count becomes zero, skip to the next instruct
+	BUN LOOP
+	HLT
+
+
+/subroutines that will shift the value that is stored in BCD subgroups if SZA is met in the loop
+SHIFT_BCD1,	HEX 0
+	LDA BCD1 /1001
+	CLE / E=0
+	SPA /IF 1 -> SKIP(0=POZ\'9bT\'9bF)
+	CME / E=1
+	CIL /1000
+	STA BCD1
+	BUN SHIFT_BCD1 I
+
+SHIFT_BCD0,	HEX 0
+	LDA BCD0
+	CLE
+	SPA
+	CME
+	CIL	
+	STA BCD0
+	BUN SHIFT_BCD0 I
+
+SHIFT_INPR,	HEX 0
+	LDA INPR
+	CLE
+	SPA
+	CME
+	CIL	
+	STA INPR
+	BUN SHIFT_INPR I
+
+
+
+/subroutines that will add 1 to the next four bit group if the value that is going to be sgifted is equal to 1
+
+ADDITION_BCD2,	HEX 0
+	LDA BCD2	
+	ADD ONE
+	STA BCD2
+	LDA BCD1
+	CLE 
+	SPA
+	CME
+	CIL
+	STA BCD1
+	BUN ADDITION_BCD2 I
+
+
+ADDITION_BCD1,	HEX 0
+	LDA BCD1
+	ADD ONE
+	STA BCD1
+	LDA BCD0
+	CLE
+	SPA
+	CME
+	CIL
+	STA BCD0
+	BUN ADDITION_BCD1 I
+
+
+ADDITION_BCD0,	HEX 0
+	LDA BCD0	
+	ADD ONE
+	STA BCD0
+	LDA INPR
+	CLE 
+	SPA
+	CME
+	CIL
+	STA INPR
+	BUN ADDITION_BCD0 I
+
+
+/ Check if BCD0 is  equal to 5. If equal, go to Add 3 operation.
+CHECK1_BCD0, HEX 0
+	LDA BCD0 /0001
+	ADD FIVE /0110
+	STA TEMP / if(TEMP-5>=0, ADD 3) else(SHIFT)/TEMP == 0000
+	SZA
+	BUN SHIFT_BCD0/////W\uc0\u304 LL GO BACK TO THE LOOP AND CONTINUE
+	BSA ADD3_BCD0
+
+
+/Check if BCD0 is bigger than 5. If bigger, go to add3 operation.
+CHECK2_BCD0, HEX 0
+	LDA BCD0
+	ADD FIVE
+	STA TEMP
+	SPA
+	BUN SHIFT_BC0
+	BUN ADD3_BCD0
+	
+
+
+/ Check if BCD1 is equal to 5. If equal, go to Add 3 operation.
+CHECK1_BCD1, HEX 0
+	LDA BCD1
+	ADD FIVE
+	STA TEMP / if(TEMP-5>=0, ADD 3) else(SHIFT)
+	SZA
+	BUN SHIFT_BCD1
+	BUN ADD3_BCD1
+
+
+/Check if BCD1 is bigger than 5. If bigger, go to add3 operation.
+CHECK2_BCD1,	HEX 0
+	LDA BCD1
+	ADD FIVE
+	STA TEMP
+	SPA
+	BUN SHIFT_BCD1
+	BUN ADD3_BCD1
+
+
+
+ADD3_BDC0,	HEX 0
+	STA BCD0
+	ADD THREE
+	STA BCD0
+	BUN ADD3 I
+
+
+ADD3_BDC1,	HEX 0
+	STA BCD1
+	ADD THREE
+	STA BCD1
+	BUN ADD3_2 I
+
+	HLT
+
+
+
+
+BCD0,	HEX 0 /first four bit place that will get the shifted value of INPR
+BCD1,	HEX 0/second four bit place that will get the shifted value of INPR
+BCD2,	HEX 0/third four bit place that will get the shifted value of INPR
+INPR,	HEX E5
+ONE,	DEC 1/the value that will be added if the shifted value is one
+FIVE,	DEC -5/it will be used to check if the binary value that is stored in BCD subgroups is bigger or equal to 5
+THREE,	DEC 3/will be used for ADD3 operation
+TEMP,	HEX 0/will temporariliy store the result
+COUNT,	DEC -8/counter that will be incremented after each loop.
+	END
+
+
 }
